@@ -17,41 +17,67 @@ struct Range
     int begin, end, size, sum;
 };
 
-std::vector<int> FindMaxIncreasingRange(const std::vector<int>& array)
+Range* BubbleSort(Range*& ranges, const int& ranges_counter)
 {
-    int it1 = -1, sum = 0;
-
-    std::vector<Range> ranges;
-    for (int i = 0; i < array.size(); i++)
+    Range temp;
+ 
+    for (int i = 0; i < ranges_counter; i++)
     {
-        if(array[i+1] == array[array.size() - 1] && array[i+1] > array[i])
+        if (ranges[i].size > ranges[i+1].size)
         {
-            sum += array[i] + array[i+1];
-            ranges.push_back({it1, i+1, i+1 - it1, sum});
+            temp = ranges[i];       
+            ranges[i] = ranges[i+1];
+            ranges[i+1] = temp;
         }
+        if (ranges[i].size == ranges[i+1].size)
+        {
+            if (ranges[i].sum > ranges[i+1].sum)
+            {
+                temp = ranges[i];       
+                ranges[i] = ranges[i+1];
+                ranges[i+1] = temp;
+            }
+        }
+    }
+    return ranges;
+}
+
+int*& FindMaxIncreasingRange(int*& array, int*& res, int& n)
+{
+    int it1 = -1, sum = 0, ranges_counter = 0;
+
+    Range* ranges = (Range*)calloc(1, sizeof(Range));
+    for (int i = 0; i < n-1; i++)
+    {
         if(array[i+1] > array[i])
-        {
             sum += array[i];
-        }
+
         else
         {
             sum += array[i];
-            ranges.push_back({it1+1, i+1, i+1 - it1+1, sum});
+            
+            ranges = (Range*)realloc(ranges, (ranges_counter+1)*sizeof(Range));
+            ranges[ranges_counter] = {it1+1, i+1, i+1 - it1+1, sum};
+            ranges_counter++;
             // std::cout << "Push back: " << it1+1 << ' ' << i+1 << ' '  
             //     << i+1 - it1+1 << ' ' << sum << std::endl;
             it1 = i;
         }
     }
-    std::sort(ranges.begin(), ranges.end(), 
-    [](const Range& a, const Range& b) 
+    BubbleSort(ranges, ranges_counter);
+
+    res = new int[ranges[ranges_counter].size];
+
+    for(int* i = array + ranges[ranges_counter].begin; i <= array + ranges[ranges_counter].end; i++)
     {
-        if(a.size == b.size)
-            return a.sum < b.sum;
+        *res = *i;
+        ++res;
+    }
 
-        return a.size < b.size;
-    });
+    free(ranges);
 
-    return {array.begin() + ranges[ranges.size()-1].begin, array.begin() + ranges[ranges.size()-1].end};
+    n = ranges[ranges_counter].size;
+    return res;
 }
 
 const int Sum(const std::vector<int>& vec)
@@ -69,19 +95,23 @@ int main()
     int n;
     std::cin >> n;
 
-    std::vector<int> array;
+    int* array = (int*)calloc(n, sizeof(int));
 
-    for(int i = 0; i < n; i++)
+    for(size_t i = 0; i < n; i++)
     {
-        array.push_back(GetRandomNum(-5, 5));
+        array[i] = GetRandomNum(-5, 5);
         std::cout << "Arr elem: " << array[i] << std::endl;
     }
     // std::cout << "Arr " << array << " " << *array << " " << array++ << " " << *(array++) << std::endl;
-    std::vector<int> range = FindMaxIncreasingRange(array);
+    int* res = FindMaxIncreasingRange(array, res, n);
+    
+    free(array);
 
     std::cout << "Max increasing range: ";
-    for(const auto& element : range)
-        std::cout << element << " ";
+    for(int i = 0; i < n; i++)
+        std::cout << res[i] << " ";
+
+    delete[] res;
 
     std::cout << std::endl;
     return 0;
