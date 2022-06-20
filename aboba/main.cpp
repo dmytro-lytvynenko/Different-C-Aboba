@@ -24,21 +24,17 @@ std::vector<int> FindMaxIncreasingRange(const std::vector<int>& array)
     std::vector<Range> ranges;
     for (int i = 0; i < array.size(); i++)
     {
-        if(array[i+1] == array[array.size() - 1] && array[i+1] > array[i])
-        {
-            sum += array[i] + array[i+1];
-            ranges.push_back({it1, i+1, i+1 - it1, sum});
-        }
         if(array[i+1] > array[i])
-        {
             sum += array[i];
-        }
+
         else
         {
             sum += array[i];
             ranges.push_back({it1+1, i+1, i+1 - it1+1, sum});
             // std::cout << "Push back: " << it1+1 << ' ' << i+1 << ' '  
             //     << i+1 - it1+1 << ' ' << sum << std::endl;
+
+            sum = 0;
             it1 = i;
         }
     }
@@ -57,7 +53,7 @@ std::vector<int> FindMaxIncreasingRange(const std::vector<int>& array)
 const int Sum(const std::vector<int>& vec)
 {
     int sum = 0;
-    for(auto el : vec)
+    for(const auto& el : vec)
         sum += el;
 
     return sum;
